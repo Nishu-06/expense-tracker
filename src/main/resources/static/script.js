@@ -5,6 +5,7 @@ const form = document.querySelector("#expense-form");
 const titleInput = document.querySelector("#title");
 const amountInput = document.querySelector("#amount");
 const categoryInput = document.querySelector("#category");
+const expenseDateInput = document.querySelector("#expense-date");
 const submitButton = document.querySelector("#submit-button");
 const cancelEditButton = document.querySelector("#cancel-edit");
 const formMessage = document.querySelector("#form-message");
@@ -16,6 +17,17 @@ let expenses = [];
 function formatMoney(value) {
   const amount = Number(value);
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(Number.isFinite(amount) ? amount : 0);
+}
+
+function formatExpenseDate(value) {
+  if (!value) return "—";
+  const [year, month, day] = value.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric" }).format(new Date(year, month - 1, day));
+}
+
+function setExpenseDateToToday() {
+  const today = new Date();
+  expenseDateInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 }
 
 function escapeHtml(value) {
@@ -38,6 +50,7 @@ function enterEditMode(expense) {
   titleInput.value = expense.title ?? "";
   amountInput.value = expense.amount ?? "";
   categoryInput.value = expense.category ?? "";
+  expenseDateInput.value = expense.expenseDate ?? "";
   document.querySelector("#form-heading").textContent = "Edit expense";
   cancelEditButton.classList.remove("hidden");
   showFormMessage(`Editing expense #${expense.id}.`, "success");
@@ -48,6 +61,7 @@ function enterEditMode(expense) {
 function resetForm() {
   editingId = null;
   form.reset();
+  setExpenseDateToToday();
   document.querySelector("#form-heading").textContent = "Add an expense";
   cancelEditButton.classList.add("hidden");
   showFormMessage();
@@ -83,7 +97,7 @@ function renderCategories() {
 
 function renderRows() {
   if (!expenses.length) {
-    expenseRows.innerHTML = '<tr><td colspan="5" class="empty-cell">No expenses yet. Add your first expense above.</td></tr>';
+    expenseRows.innerHTML = '<tr><td colspan="6" class="empty-cell">No expenses yet. Add your first expense above.</td></tr>';
     return;
   }
   const ordered = [...expenses].sort((a, b) => Number(b.id) - Number(a.id));
@@ -95,6 +109,7 @@ function renderRows() {
       <td class="title-cell">${escapeHtml(expense.title)}</td>
       <td class="amount-cell">${formatMoney(expense.amount)}</td>
       <td><span class="category-badge ${categoryClass}">${escapeHtml(category)}</span></td>
+      <td>${escapeHtml(formatExpenseDate(expense.expenseDate))}</td>
       <td><div class="actions-cell"><button class="action-button" type="button" data-action="edit" data-id="${escapeHtml(expense.id)}" aria-label="Edit ${escapeHtml(expense.title)}" title="Edit">✎</button><button class="action-button delete" type="button" data-action="delete" data-id="${escapeHtml(expense.id)}" aria-label="Delete ${escapeHtml(expense.title)}" title="Delete">⌫</button></div></td>
     </tr>`;
   }).join("");
@@ -103,7 +118,7 @@ function renderRows() {
 async function loadExpenses() {
   refreshButton.disabled = true;
   refreshButton.innerHTML = '<span class="spinner"></span><span>Loading</span>';
-  expenseRows.innerHTML = '<tr><td colspan="5" class="loading-cell"><span class="spinner"></span>Loading your expenses…</td></tr>';
+  expenseRows.innerHTML = '<tr><td colspan="6" class="loading-cell"><span class="spinner"></span>Loading your expenses…</td></tr>';
   try {
     const response = await fetch(API_URL, { headers: { Accept: "application/json" } });
     if (!response.ok) throw new Error(`Could not load expenses (HTTP ${response.status}).`);
@@ -113,7 +128,7 @@ async function loadExpenses() {
     renderSummary();
     renderRows();
   } catch (error) {
-    expenseRows.innerHTML = `<tr><td colspan="5" class="empty-cell">${escapeHtml(error.message || "Unable to load expenses.")} Check that the Spring Boot app is running, then refresh.</td></tr>`;
+    expenseRows.innerHTML = `<tr><td colspan="6" class="empty-cell">${escapeHtml(error.message || "Unable to load expenses.")} Check that the Spring Boot app is running, then refresh.</td></tr>`;
     document.querySelector("#total-expenses").textContent = "—";
     document.querySelector("#transaction-count").textContent = "—";
     document.querySelector("#highest-expense").textContent = "—";
@@ -127,9 +142,9 @@ async function loadExpenses() {
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!form.reportValidity()) return;
-  const expense = { title: titleInput.value.trim(), amount: Number(amountInput.value), category: categoryInput.value };
-  if (!expense.title || !Number.isFinite(expense.amount) || expense.amount <= 0 || !CATEGORIES.includes(expense.category)) {
-    showFormMessage("Enter a title, a positive amount, and choose a category.");
+  const expense = { title: titleInput.value.trim(), amount: Number(amountInput.value), category: categoryInput.value, expenseDate: expenseDateInput.value };
+  if (!expense.title || !Number.isFinite(expense.amount) || expense.amount <= 0 || !CATEGORIES.includes(expense.category) || !expense.expenseDate) {
+    showFormMessage("Enter a title, a positive amount, choose a category, and select a date.");
     return;
   }
   const wasEditing = editingId !== null;
@@ -186,4 +201,5 @@ document.querySelectorAll(".nav-link").forEach((link) => link.addEventListener("
   link.classList.add("active");
 }));
 document.querySelector("#today-label").textContent = new Intl.DateTimeFormat("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" }).format(new Date());
+setExpenseDateToToday();
 loadExpenses();

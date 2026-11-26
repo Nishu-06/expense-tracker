@@ -3,6 +3,7 @@ package com.nishu.expensetracker.model;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "expenses")
@@ -18,13 +19,16 @@ public class Expense {
 
     private String category;
 
+    private LocalDate expenseDate;
+
     public Expense() {
     }
 
-    public Expense(String title, BigDecimal amount, String category) {
+    public Expense(String title, BigDecimal amount, String category, LocalDate expenseDate) {
         this.title = title;
         this.amount = amount;
         this.category = category;
+        this.expenseDate = expenseDate;
     }
 
     public Long getId() {
@@ -43,6 +47,10 @@ public class Expense {
         return category;
     }
 
+    public LocalDate getExpenseDate() {
+        return expenseDate;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -57,5 +65,9 @@ public class Expense {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public void setExpenseDate(LocalDate expenseDate) {
+        this.expenseDate = expenseDate;
     }
 }
