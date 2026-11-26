@@ -59,6 +59,7 @@
               <div><label for="amount">Amount</label><div class="amount-input"><span>₹</span><input id="amount" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required></div></div>
               <div><label for="category">Category</label><select id="category" name="category" required><option value="" disabled selected>Select category</option><option>Food</option><option>Travel</option><option>Shopping</option><option>Bills</option><option>Entertainment</option><option>Other</option></select></div>
             </div>
+            <div class="date-field"><label for="expense-date">Expense date</label><input id="expense-date" name="expenseDate" type="date" required></div>
             <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
             <div class="form-actions"><button class="primary-button submit-button" id="submit-button" type="submit">Save expense <span>→</span></button><button class="text-button hidden" id="cancel-edit" type="button">Cancel edit</button></div>
           </form>
@@ -74,7 +75,7 @@
 
       <section class="panel transactions-panel" id="transactions">
         <div class="transactions-heading"><div><p class="eyebrow">YOUR ACTIVITY</p><h2>Recent transactions</h2><p class="panel-description">A history of your latest expenses.</p></div><span class="transaction-count" id="table-count">0 records</span></div>
-        <div class="table-wrap"><table><thead><tr><th>EXPENSE ID</th><th>TITLE</th><th>AMOUNT</th><th>CATEGORY</th><th class="actions-heading">ACTIONS</th></tr></thead><tbody id="expense-rows"><tr><td colspan="5" class="loading-cell"><span class="spinner"></span>Loading your expenses…</td></tr></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>EXPENSE ID</th><th>TITLE</th><th>AMOUNT</th><th>CATEGORY</th><th>EXPENSE DATE</th><th class="actions-heading">ACTIONS</th></tr></thead><tbody id="expense-rows"><tr><td colspan="6" class="loading-cell"><span class="spinner"></span>Loading your expenses…</td></tr></tbody></table></div>
         <div class="table-footer"><span id="table-summary">Showing expenses from your account</span><button class="refresh-button" id="refresh-button" type="button" aria-label="Refresh transactions">↻ <span>Refresh</span></button></div>
       </section>
       <footer class="page-footer">Spendwise <span>·</span> Your finances, made clearer.</footer>
